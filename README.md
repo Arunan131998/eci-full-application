@@ -73,8 +73,7 @@ Choose one of the three deployment options below.
 - All PostgreSQL databases have health checks that verify they're ready (`pg_isready`)
 - Services start after their database is healthy
 - Order service waits for other services to be running
-- The seed container waits for application endpoints before seeding data
-- First startup takes ~60-90 seconds for all databases and services to initialize
+- First startup takes ~30-60 seconds for all databases and services to initialize
 
 **Steps:**
 
@@ -128,44 +127,11 @@ Choose one of the three deployment options below.
    - Notification API: http://localhost:3006/docs
    - Metrics: http://localhost:3001/metrics (catalog example)
 
-## Automatic Database Seeding
+## Manual Seeding
 
-The docker-compose setup includes automatic database seeding via a dedicated `seed` service:
+Run seeding only when needed, after services are up:
 
-### How It Works
-1. All database and service containers start up
-2. Health checks verify that all services are ready (~60-90 seconds on first run)
-3. The `seed` service waits for all services to be healthy
-4. Once ready, it automatically runs the seed scripts (`npm run seed`) for each service
-5. Seed scripts load sample data from CSV files in each service's `data/` directory
-
-### Monitoring Seed Progress
 ```bash
-# Watch seed container logs
-docker compose -f docker-compose.yml logs -f seed
-
-# Example output:
-# ==========================================
-# ECI Platform - Automatic Database Seeding
-# ==========================================
-# 
-# Step 1: Waiting for all services to be ready...
-# Waiting for catalog-service (3001)... ✓
-# Waiting for inventory-service (3002)... ✓
-# ...
-# All services are ready! Proceeding with database seeding...
-# Step 2: Seeding databases...
-# Step 2.1: Seeding Catalog Service...
-#   Installing dependencies for Catalog Service...
-#   Running seed script...
-#   ✓ Seeding complete
-```
-
-### Manual Seeding (if needed)
-```bash
-# Rerun the dedicated seed job (recommended)
-docker compose -f docker-compose.yml up --build seed
-
 # Seed one service manually
 docker compose -f docker-compose.yml exec catalog-service npm run seed
 
@@ -385,13 +351,11 @@ The docker-compose configuration includes automated health checks to ensure serv
 
 ### Application Readiness
 - Application containers are started after their databases are healthy
-- The `seed` container checks each service's `/health` endpoint before running seed scripts
-- This avoids false Docker unhealthy states while still waiting for real application readiness
+- Validate readiness with `/health` endpoints before running manual seed commands
 
 ### Service Dependencies
 - **Catalog, Inventory, Payment, Shipping, Notification**: Wait for their database to be healthy (`service_healthy`)
 - **Order Service**: Waits for its database to be healthy AND all other services to be started (`service_started`)
-- **Seed Service**: Waits for all app containers to start, then validates `/health` endpoints itself before seeding
 
 ### Why This Matters
 On first startup, PostgreSQL needs time to:
@@ -400,7 +364,7 @@ On first startup, PostgreSQL needs time to:
 3. Create tables from init.sql
 4. Accept connections
 
-Without database health checks, services would try to connect before PostgreSQL was ready. App readiness is handled by the seeding script instead of Docker container healthchecks.
+Without database health checks, services would try to connect before PostgreSQL was ready.
 
 ### Monitoring Startup
 ```bash

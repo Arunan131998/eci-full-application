@@ -1,0 +1,18 @@
+[submodule "catalog-service"]
+	path = catalog-service
+	url = https://github.com/Arunan131998/eci-catalog-service.git
+[submodule "inventory-service"]
+	path = inventory-service
+	url = https://github.com/Arunan131998/eci-inventory-service.git
+[submodule "order-service"]
+	path = order-service
+	url = https://github.com/Arunan131998/eci-order-service.git
+[submodule "payment-service"]
+	path = payment-service
+	url = https://github.com/Arunan131998/eci-payment-service.git
+[submodule "shipping-service"]
+	path = shipping-service
+	url = https://github.com/Arunan131998/eci-shipping-service.git
+[submodule "notification-service"]
+	path = notification-service
+	url = https://github.com/Arunan131998/eci-notification-service.git

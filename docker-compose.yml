@@ -1,0 +1,196 @@
+version: '3.9'
+
+networks:
+  eci-net:
+    driver: bridge
+
+volumes:
+  catalog_db_data:
+  inventory_db_data:
+  order_db_data:
+  payment_db_data:
+  shipping_db_data:
+  notification_db_data:
+
+services:
+  catalog-db:
+    image: postgres:16
+    container_name: catalog-db
+    environment:
+      POSTGRES_DB: catalog_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5431:5432"
+    volumes:
+      - catalog_db_data:/var/lib/postgresql/data
+    networks:
+      - eci-net
+
+  inventory-db:
+    image: postgres:16
+    container_name: inventory-db
+    environment:
+      POSTGRES_DB: inventory_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - inventory_db_data:/var/lib/postgresql/data
+    networks:
+      - eci-net
+
+  order-db:
+    image: postgres:16
+    container_name: order-db
+    environment:
+      POSTGRES_DB: order_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
+    networks:
+      - eci-net
+
+  payment-db:
+    image: postgres:16
+    container_name: payment-db
+    environment:
+      POSTGRES_DB: payment_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - payment_db_data:/var/lib/postgresql/data
+    networks:
+      - eci-net
+
+  shipping-db:
+    image: postgres:16
+    container_name: shipping-db
+    environment:
+      POSTGRES_DB: shipping_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - shipping_db_data:/var/lib/postgresql/data
+    networks:
+      - eci-net
+
+  notification-db:
+    image: postgres:16
+    container_name: notification-db
+    environment:
+      POSTGRES_DB: notification_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5436:5432"
+    volumes:
+      - notification_db_data:/var/lib/postgresql/data
+    networks:
+      - eci-net
+
+  catalog-service:
+    build: ./catalog-service
+    container_name: catalog-service
+    environment:
+      PORT: 3001
+      SERVICE_NAME: catalog-service
+      DATABASE_URL: postgres://postgres:postgres@catalog-db:5432/catalog_db
+    depends_on:
+      - catalog-db
+    ports:
+      - "3001:3001"
+    networks:
+      - eci-net
+
+  inventory-service:
+    build: ./inventory-service
+    container_name: inventory-service
+    environment:
+      PORT: 3002
+      SERVICE_NAME: inventory-service
+      DATABASE_URL: postgres://postgres:postgres@inventory-db:5432/inventory_db
+    depends_on:
+      - inventory-db
+    ports:
+      - "3002:3002"
+    networks:
+      - eci-net
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    environment:
+      PORT: 3003
+      SERVICE_NAME: order-service
+      DATABASE_URL: postgres://postgres:postgres@order-db:5432/order_db
+      CATALOG_BASE_URL: http://catalog-service:3001
+      INVENTORY_BASE_URL: http://inventory-service:3002
+      PAYMENT_BASE_URL: http://payment-service:3004
+      SHIPPING_BASE_URL: http://shipping-service:3005
+      NOTIFICATION_BASE_URL: http://notification-service:3006
+    depends_on:
+      - order-db
+      - catalog-service
+      - inventory-service
+      - payment-service
+      - shipping-service
+      - notification-service
+    ports:
+      - "3003:3003"
+    networks:
+      - eci-net
+
+  payment-service:
+    build: ./payment-service
+    container_name: payment-service
+    environment:
+      PORT: 3004
+      SERVICE_NAME: payment-service
+      DATABASE_URL: postgres://postgres:postgres@payment-db:5432/payment_db
+      ORDER_CALLBACK_URL: http://order-service:3003/v1/orders
+      NOTIFICATION_BASE_URL: http://notification-service:3006
+    depends_on:
+      - payment-db
+    ports:
+      - "3004:3004"
+    networks:
+      - eci-net
+
+  shipping-service:
+    build: ./shipping-service
+    container_name: shipping-service
+    environment:
+      PORT: 3005
+      SERVICE_NAME: shipping-service
+      DATABASE_URL: postgres://postgres:postgres@shipping-db:5432/shipping_db
+      ORDER_CALLBACK_URL: http://order-service:3003/v1/orders
+      NOTIFICATION_BASE_URL: http://notification-service:3006
+    depends_on:
+      - shipping-db
+    ports:
+      - "3005:3005"
+    networks:
+      - eci-net
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    environment:
+      PORT: 3006
+      SERVICE_NAME: notification-service
+      DATABASE_URL: postgres://postgres:postgres@notification-db:5432/notification_db
+    depends_on:
+      - notification-db
+    ports:
+      - "3006:3006"
+    networks:
+      - eci-net

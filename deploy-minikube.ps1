@@ -48,7 +48,7 @@ function Start-MinikubeIfNeeded {
 
 function Use-MinikubeDocker {
     Write-Step 'Configuring shell to use Minikube Docker daemon'
-    $envScript = minikube -p minikube docker-env --shell powershell
+    $envScript = minikube -p minikube docker-env --shell powershell | Out-String
     if (-not $envScript) {
         throw 'Failed to get Minikube Docker environment.'
     }

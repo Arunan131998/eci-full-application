@@ -168,16 +168,16 @@ docker compose -f docker-compose.yml up --build seed
 # Seed one service manually
 docker compose -f docker-compose.yml exec catalog-service npm run seed
 
-# Seed all services manually (Bash)
-for service in catalog inventory order payment shipping notification; do
+# Seed all seed-enabled services manually (Bash)
+for service in catalog inventory order payment shipping; do
    echo "Seeding $service-service..."
    docker compose -f docker-compose.yml exec "$service-service" npm run seed
 done
 ```
 
 ```powershell
-# Seed all services manually (PowerShell)
-$services = "catalog","inventory","order","payment","shipping","notification"
+# Seed all seed-enabled services manually (PowerShell)
+$services = "catalog","inventory","order","payment","shipping"
 foreach ($s in $services) {
    Write-Output "Seeding $s-service..."
    docker compose -f docker-compose.yml exec "$s-service" npm run seed

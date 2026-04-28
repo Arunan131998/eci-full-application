@@ -98,8 +98,11 @@ seed_service "/app/catalog-service" "Catalog Service"
 seed_service "/app/inventory-service" "Inventory Service"
 seed_service "/app/payment-service" "Payment Service"
 seed_service "/app/shipping-service" "Shipping Service"
-seed_service "/app/notification-service" "Notification Service"
 seed_service "/app/order-service" "Order Service"
+
+echo "Step 2.${seed_count}: Skipping Notification Service seeding (no seed dataset by design)"
+seed_count=$((seed_count + 1))
+echo ""
 
 echo "=========================================="
 echo "✓ Seeding Complete!"

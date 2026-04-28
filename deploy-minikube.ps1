@@ -83,7 +83,7 @@ function Apply-Databases {
     foreach ($service in $services) {
         $dbPath = Join-Path $root "$service-service\k8s\$service-db.yaml"
         Invoke-CheckedCommand { kubectl apply -f $dbPath } "Failed to apply DB manifest for $service-service."
-        Invoke-CheckedCommand { kubectl rollout status "statefulset/$service-db" --timeout=180s } "Database rollout failed for $service-db."
+        Invoke-CheckedCommand { kubectl rollout status "deployment/$service-db" --timeout=180s } "Database rollout failed for $service-db."
     }
 }
 
@@ -120,7 +120,7 @@ function Show-Status {
             'shipping' { 3005 }
             'notification' { 3006 }
         }
-        Write-Host "  kubectl port-forward svc/$service-service $port:$port"
+        Write-Host "  kubectl port-forward svc/$service-service ${port}:${port}"
     }
 }
 

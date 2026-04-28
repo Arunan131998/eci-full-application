@@ -69,6 +69,12 @@ Choose one of the three deployment options below.
 - ~2 GB free disk space
 - Ports 3001-3006 and 5431-5436 available
 
+**Health Checks & Startup Sequencing:**
+- All PostgreSQL databases have health checks that verify they're ready (`pg_isready`)
+- All services wait for their database health checks to pass before starting
+- Order service waits for other services to be running
+- First startup takes ~60-90 seconds for all databases to initialize
+
 **Steps:**
 
 1. **Build and start all services**:
@@ -77,22 +83,31 @@ Choose one of the three deployment options below.
    docker compose -f docker-compose.all-services.template.yml up --build -d
    ```
 
-2. **Wait for all services to be ready** (~15-30 seconds):
+2. **Monitor startup progress** (~60-90 seconds for full readiness):
    ```bash
-   # Check service status
-   docker compose -f docker-compose.all-services.template.yml ps
+   # Watch Docker logs as services start
+   docker compose -f docker-compose.all-services.template.yml logs -f
    
-   # All services should show "running" status
-   # Example healthy output:
-   # catalog-service        running  0.0.0.0:3001->3001/tcp
-   # inventory-service      running  0.0.0.0:3002->3002/tcp
-   # order-service          running  0.0.0.0:3003->3003/tcp
-   # payment-service        running  0.0.0.0:3004->3004/tcp
-   # shipping-service       running  0.0.0.0:3005->3005/tcp
-   # notification-service   running  0.0.0.0:3006->3006/tcp
+   # Or check health status
+   docker compose -f docker-compose.all-services.template.yml ps
    ```
 
-3. **Verify all services are healthy**:
+3. **Wait until all services are running** (check the `STATUS` column):
+   ```
+   NAME                    STATUS
+   catalog-db              Up (healthy)
+   catalog-service         Up (healthy)
+   inventory-db            Up (healthy)
+   inventory-service       Up (healthy)
+   order-db                Up (healthy)
+   order-service           Up (running)
+   payment-db              Up (healthy)
+   payment-service         Up (healthy)
+   shipping-db             Up (healthy)
+   shipping-service        Up (healthy)
+   notification-db         Up (healthy)
+   notification-service    Up (healthy)
+   ```
    ```bash
    curl http://localhost:3001/health
    curl http://localhost:3002/health
@@ -278,7 +293,48 @@ Refer to each service's README.md for detailed Docker commands and environment v
 
 ---
 
-## Testing the System
+## Docker Compose Health Checks & Startup Sequencing
+
+The docker-compose configuration includes automated health checks to ensure services start in the correct order:
+
+### Database Health Checks
+- **Test**: `pg_isready -U postgres -d {database_name}`
+- **Interval**: Every 5 seconds
+- **Start Period**: 10 seconds (grace period before first check)
+- **Retries**: 10 attempts before marking unhealthy
+- **Timeout**: 5 seconds per check
+
+### Application Service Health Checks
+- **Test**: `curl -f http://localhost:{port}/health`
+- **Interval**: Every 10 seconds
+- **Start Period**: 30 seconds (apps need time to initialize)
+- **Retries**: 5 attempts before marking unhealthy
+- **Timeout**: 5 seconds per check
+
+### Service Dependencies
+- **Catalog, Inventory, Payment, Shipping, Notification**: Wait for their database to be healthy (`service_healthy`)
+- **Order Service**: Waits for its database to be healthy AND all other services to be started (`service_started`)
+
+### Why This Matters
+On first startup, PostgreSQL needs time to:
+1. Initialize the database directory
+2. Start the server
+3. Create tables from init.sql
+4. Accept connections
+
+Without health checks, services would try to connect before this was complete, causing startup failures. The health check mechanism ensures proper sequencing.
+
+### Monitoring Startup
+```bash
+# Watch detailed logs during startup
+docker compose -f docker-compose.all-services.template.yml logs -f
+
+# Check current health status
+docker compose -f docker-compose.all-services.template.yml ps
+
+# Check specific service health
+docker inspect --format='{{.State.Health.Status}}' catalog-db
+```
 
 ### Health Check (All Services)
 ```bash

@@ -147,12 +147,6 @@ services:
       - "3001:3001"
     networks:
       - eci-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   inventory-service:
     build: ./inventory-service
@@ -168,12 +162,6 @@ services:
       - "3002:3002"
     networks:
       - eci-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   order-service:
     build: ./order-service
@@ -204,12 +192,6 @@ services:
       - "3003:3003"
     networks:
       - eci-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   payment-service:
     build: ./payment-service
@@ -227,12 +209,6 @@ services:
       - "3004:3004"
     networks:
       - eci-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   shipping-service:
     build: ./shipping-service
@@ -250,12 +226,6 @@ services:
       - "3005:3005"
     networks:
       - eci-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   notification-service:
     build: ./notification-service
@@ -271,12 +241,6 @@ services:
       - "3006:3006"
     networks:
       - eci-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3006/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   seed:
     build:
@@ -285,15 +249,15 @@ services:
     container_name: eci-seed
     depends_on:
       catalog-service:
-        condition: service_healthy
+        condition: service_started
       inventory-service:
-        condition: service_healthy
+        condition: service_started
       payment-service:
-        condition: service_healthy
+        condition: service_started
       shipping-service:
-        condition: service_healthy
+        condition: service_started
       notification-service:
-        condition: service_healthy
+        condition: service_started
       order-service:
         condition: service_started
     volumes:

@@ -71,9 +71,10 @@ Choose one of the three deployment options below.
 
 **Health Checks & Startup Sequencing:**
 - All PostgreSQL databases have health checks that verify they're ready (`pg_isready`)
-- All services wait for their database health checks to pass before starting
+- Services start after their database is healthy
 - Order service waits for other services to be running
-- First startup takes ~60-90 seconds for all databases to initialize
+- The seed container waits for application endpoints before seeding data
+- First startup takes ~60-90 seconds for all databases and services to initialize
 
 **Steps:**
 
@@ -96,17 +97,17 @@ Choose one of the three deployment options below.
    ```
    NAME                    STATUS
    catalog-db              Up (healthy)
-   catalog-service         Up (healthy)
+   catalog-service         Up
    inventory-db            Up (healthy)
-   inventory-service       Up (healthy)
+   inventory-service       Up
    order-db                Up (healthy)
    order-service           Up (running)
    payment-db              Up (healthy)
-   payment-service         Up (healthy)
+   payment-service         Up
    shipping-db             Up (healthy)
-   shipping-service        Up (healthy)
+   shipping-service        Up
    notification-db         Up (healthy)
-   notification-service    Up (healthy)
+   notification-service    Up
    ```
    ```bash
    curl http://localhost:3001/health
@@ -361,16 +362,15 @@ The docker-compose configuration includes automated health checks to ensure serv
 - **Retries**: 10 attempts before marking unhealthy
 - **Timeout**: 5 seconds per check
 
-### Application Service Health Checks
-- **Test**: `curl -f http://localhost:{port}/health`
-- **Interval**: Every 10 seconds
-- **Start Period**: 30 seconds (apps need time to initialize)
-- **Retries**: 5 attempts before marking unhealthy
-- **Timeout**: 5 seconds per check
+### Application Readiness
+- Application containers are started after their databases are healthy
+- The `seed` container checks each service's `/health` endpoint before running seed scripts
+- This avoids false Docker unhealthy states while still waiting for real application readiness
 
 ### Service Dependencies
 - **Catalog, Inventory, Payment, Shipping, Notification**: Wait for their database to be healthy (`service_healthy`)
 - **Order Service**: Waits for its database to be healthy AND all other services to be started (`service_started`)
+- **Seed Service**: Waits for all app containers to start, then validates `/health` endpoints itself before seeding
 
 ### Why This Matters
 On first startup, PostgreSQL needs time to:
@@ -379,7 +379,7 @@ On first startup, PostgreSQL needs time to:
 3. Create tables from init.sql
 4. Accept connections
 
-Without health checks, services would try to connect before this was complete, causing startup failures. The health check mechanism ensures proper sequencing.
+Without database health checks, services would try to connect before PostgreSQL was ready. App readiness is handled by the seeding script instead of Docker container healthchecks.
 
 ### Monitoring Startup
 ```bash

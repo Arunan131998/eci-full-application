@@ -131,6 +131,14 @@ Choose one of the three deployment options below.
 
 Run seeding only when needed, after services are up:
 
+```powershell
+# Seed all seed-enabled services (recommended)
+.\seed-manual.ps1
+
+# Seed one service
+.\seed-manual.ps1 -Service catalog-service
+```
+
 ```bash
 # Seed one service manually
 docker compose -f docker-compose.yml exec catalog-service npm run seed

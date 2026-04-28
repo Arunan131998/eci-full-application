@@ -26,6 +26,12 @@ services:
       - catalog_db_data:/var/lib/postgresql/data
     networks:
       - eci-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d catalog_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   inventory-db:
     image: postgres:16
@@ -40,6 +46,12 @@ services:
       - inventory_db_data:/var/lib/postgresql/data
     networks:
       - eci-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d inventory_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   order-db:
     image: postgres:16
@@ -54,6 +66,12 @@ services:
       - order_db_data:/var/lib/postgresql/data
     networks:
       - eci-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d order_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   payment-db:
     image: postgres:16
@@ -68,6 +86,12 @@ services:
       - payment_db_data:/var/lib/postgresql/data
     networks:
       - eci-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d payment_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   shipping-db:
     image: postgres:16
@@ -82,6 +106,12 @@ services:
       - shipping_db_data:/var/lib/postgresql/data
     networks:
       - eci-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d shipping_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   notification-db:
     image: postgres:16
@@ -96,6 +126,12 @@ services:
       - notification_db_data:/var/lib/postgresql/data
     networks:
       - eci-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d notification_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   catalog-service:
     build: ./catalog-service
@@ -105,11 +141,18 @@ services:
       SERVICE_NAME: catalog-service
       DATABASE_URL: postgres://postgres:postgres@catalog-db:5432/catalog_db
     depends_on:
-      - catalog-db
+      catalog-db:
+        condition: service_healthy
     ports:
       - "3001:3001"
     networks:
       - eci-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   inventory-service:
     build: ./inventory-service
@@ -119,11 +162,18 @@ services:
       SERVICE_NAME: inventory-service
       DATABASE_URL: postgres://postgres:postgres@inventory-db:5432/inventory_db
     depends_on:
-      - inventory-db
+      inventory-db:
+        condition: service_healthy
     ports:
       - "3002:3002"
     networks:
       - eci-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   order-service:
     build: ./order-service
@@ -138,16 +188,28 @@ services:
       SHIPPING_BASE_URL: http://shipping-service:3005
       NOTIFICATION_BASE_URL: http://notification-service:3006
     depends_on:
-      - order-db
-      - catalog-service
-      - inventory-service
-      - payment-service
-      - shipping-service
-      - notification-service
+      order-db:
+        condition: service_healthy
+      catalog-service:
+        condition: service_started
+      inventory-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+      shipping-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
     ports:
       - "3003:3003"
     networks:
       - eci-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   payment-service:
     build: ./payment-service
@@ -159,11 +221,18 @@ services:
       ORDER_CALLBACK_URL: http://order-service:3003/v1/orders
       NOTIFICATION_BASE_URL: http://notification-service:3006
     depends_on:
-      - payment-db
+      payment-db:
+        condition: service_healthy
     ports:
       - "3004:3004"
     networks:
       - eci-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   shipping-service:
     build: ./shipping-service
@@ -175,11 +244,18 @@ services:
       ORDER_CALLBACK_URL: http://order-service:3003/v1/orders
       NOTIFICATION_BASE_URL: http://notification-service:3006
     depends_on:
-      - shipping-db
+      shipping-db:
+        condition: service_healthy
     ports:
       - "3005:3005"
     networks:
       - eci-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   notification-service:
     build: ./notification-service
@@ -189,8 +265,15 @@ services:
       SERVICE_NAME: notification-service
       DATABASE_URL: postgres://postgres:postgres@notification-db:5432/notification_db
     depends_on:
-      - notification-db
+      notification-db:
+        condition: service_healthy
     ports:
       - "3006:3006"
     networks:
       - eci-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3006/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s

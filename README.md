@@ -239,6 +239,27 @@ Refer to each service's README.md for detailed Docker commands and environment v
 - ~4 GB Minikube memory
 - Docker/Podman available
 
+### One-Command PowerShell Deployment
+
+From the `FullApplication/` root directory, run:
+
+```powershell
+.\deploy-minikube.ps1
+```
+
+Useful variants:
+
+```powershell
+# Deploy but skip rebuilding Docker images
+.\deploy-minikube.ps1 -SkipBuild
+
+# Show cluster/service status
+.\deploy-minikube.ps1 -Action Status
+
+# Delete all deployed resources
+.\deploy-minikube.ps1 -Action Cleanup
+```
+
 ### Full Stack Deployment (All Services)
 
 1. **Start Minikube**:

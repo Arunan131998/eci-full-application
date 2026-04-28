@@ -16,3 +16,6 @@
 [submodule "notification-service"]
 	path = notification-service
 	url = https://github.com/Arunan131998/eci-notification-service.git
+[submodule "api-docs"]
+	path = api-docs
+	url = https://github.com/Arunan131998/ScalableServicesAssignmentDocs.git

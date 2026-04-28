@@ -61,8 +61,8 @@ function Build-Images {
         $serviceDir = Join-Path $root "$service-service"
         Push-Location $serviceDir
         try {
-            Write-Host "Building eci-$service-service:latest"
-            Invoke-CheckedCommand { docker build -t "eci-$service-service:latest" . } "Failed to build image for $service-service."
+            Write-Host "Building $service-service:latest"
+            Invoke-CheckedCommand { docker build -t "$service-service:latest" . } "Failed to build image for $service-service."
         }
         finally {
             Pop-Location

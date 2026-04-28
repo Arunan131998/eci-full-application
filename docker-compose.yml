@@ -277,3 +277,34 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile.seed
+    container_name: eci-seed
+    depends_on:
+      catalog-service:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+      shipping-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+      order-service:
+        condition: service_started
+    volumes:
+      - ./catalog-service:/app/catalog-service
+      - ./inventory-service:/app/inventory-service
+      - ./order-service:/app/order-service
+      - ./payment-service:/app/payment-service
+      - ./shipping-service:/app/shipping-service
+      - ./notification-service:/app/notification-service
+      - ./seed-entrypoint.sh:/app/seed-entrypoint.sh
+    networks:
+      - eci-net
+    environment:
+      NODE_ENV: production

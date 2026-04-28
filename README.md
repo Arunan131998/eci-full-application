@@ -127,6 +127,51 @@ Choose one of the three deployment options below.
    - Notification API: http://localhost:3006/docs
    - Metrics: http://localhost:3001/metrics (catalog example)
 
+## Automatic Database Seeding
+
+The docker-compose setup includes automatic database seeding via a dedicated `seed` service:
+
+### How It Works
+1. All database and service containers start up
+2. Health checks verify that all services are ready (~60-90 seconds on first run)
+3. The `seed` service waits for all services to be healthy
+4. Once ready, it automatically runs the seed scripts (`npm run seed`) for each service
+5. Seed scripts load sample data from CSV files in each service's `data/` directory
+
+### Monitoring Seed Progress
+```bash
+# Watch seed container logs
+docker compose -f docker-compose.all-services.template.yml logs -f seed
+
+# Example output:
+# ==========================================
+# ECI Platform - Automatic Database Seeding
+# ==========================================
+# 
+# Step 1: Waiting for all services to be ready...
+# Waiting for catalog-service (3001)... ✓
+# Waiting for inventory-service (3002)... ✓
+# ...
+# All services are ready! Proceeding with database seeding...
+# Step 2: Seeding databases...
+# Step 2.1: Seeding Catalog Service...
+#   Installing dependencies for Catalog Service...
+#   Running seed script...
+#   ✓ Seeding complete
+```
+
+### Manual Seeding (if needed)
+```bash
+# Seed specific service manually
+docker compose -f docker-compose.all-services.template.yml exec catalog-service npm run seed
+
+# Or seed all services
+for service in catalog inventory order payment shipping notification; do
+  echo "Seeding $service-service..."
+  docker compose -f docker-compose.all-services.template.yml exec $service-service npm run seed
+done
+```
+
 5. **View logs**:
    ```bash
    # All logs

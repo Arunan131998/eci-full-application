@@ -162,14 +162,26 @@ docker compose -f docker-compose.yml logs -f seed
 
 ### Manual Seeding (if needed)
 ```bash
-# Seed specific service manually
+# Rerun the dedicated seed job (recommended)
+docker compose -f docker-compose.yml up --build seed
+
+# Seed one service manually
 docker compose -f docker-compose.yml exec catalog-service npm run seed
 
-# Or seed all services
+# Seed all services manually (Bash)
 for service in catalog inventory order payment shipping notification; do
-  echo "Seeding $service-service..."
-  docker compose -f docker-compose.yml exec $service-service npm run seed
+   echo "Seeding $service-service..."
+   docker compose -f docker-compose.yml exec "$service-service" npm run seed
 done
+```
+
+```powershell
+# Seed all services manually (PowerShell)
+$services = "catalog","inventory","order","payment","shipping","notification"
+foreach ($s in $services) {
+   Write-Output "Seeding $s-service..."
+   docker compose -f docker-compose.yml exec "$s-service" npm run seed
+}
 ```
 
 5. **View logs**:

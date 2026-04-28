@@ -1,4 +1,4 @@
-# ECI - E-Commerce Microservices Platform
+﻿# ECI - E-Commerce Microservices Platform
 
 A complete 6-microservice e-commerce order management system with atomic transactions, distributed tracing, and event-driven notifications.
 
@@ -80,16 +80,16 @@ Choose one of the three deployment options below.
 1. **Build and start all services**:
    ```bash
    cd FullApplication
-   docker compose -f docker-compose.all-services.template.yml up --build -d
+   docker compose -f docker-compose.yml up --build -d
    ```
 
 2. **Monitor startup progress** (~60-90 seconds for full readiness):
    ```bash
    # Watch Docker logs as services start
-   docker compose -f docker-compose.all-services.template.yml logs -f
+   docker compose -f docker-compose.yml logs -f
    
    # Or check health status
-   docker compose -f docker-compose.all-services.template.yml ps
+   docker compose -f docker-compose.yml ps
    ```
 
 3. **Wait until all services are running** (check the `STATUS` column):
@@ -141,7 +141,7 @@ The docker-compose setup includes automatic database seeding via a dedicated `se
 ### Monitoring Seed Progress
 ```bash
 # Watch seed container logs
-docker compose -f docker-compose.all-services.template.yml logs -f seed
+docker compose -f docker-compose.yml logs -f seed
 
 # Example output:
 # ==========================================
@@ -163,27 +163,27 @@ docker compose -f docker-compose.all-services.template.yml logs -f seed
 ### Manual Seeding (if needed)
 ```bash
 # Seed specific service manually
-docker compose -f docker-compose.all-services.template.yml exec catalog-service npm run seed
+docker compose -f docker-compose.yml exec catalog-service npm run seed
 
 # Or seed all services
 for service in catalog inventory order payment shipping notification; do
   echo "Seeding $service-service..."
-  docker compose -f docker-compose.all-services.template.yml exec $service-service npm run seed
+  docker compose -f docker-compose.yml exec $service-service npm run seed
 done
 ```
 
 5. **View logs**:
    ```bash
    # All logs
-   docker compose -f docker-compose.all-services.template.yml logs -f
+   docker compose -f docker-compose.yml logs -f
    
    # Specific service logs
-   docker compose -f docker-compose.all-services.template.yml logs -f order-service
+   docker compose -f docker-compose.yml logs -f order-service
    ```
 
 6. **Stop all services**:
    ```bash
-   docker compose -f docker-compose.all-services.template.yml down
+   docker compose -f docker-compose.yml down
    ```
 
 ---
@@ -372,10 +372,10 @@ Without health checks, services would try to connect before this was complete, c
 ### Monitoring Startup
 ```bash
 # Watch detailed logs during startup
-docker compose -f docker-compose.all-services.template.yml logs -f
+docker compose -f docker-compose.yml logs -f
 
 # Check current health status
-docker compose -f docker-compose.all-services.template.yml ps
+docker compose -f docker-compose.yml ps
 
 # Check specific service health
 docker inspect --format='{{.State.Health.Status}}' catalog-db
@@ -541,7 +541,7 @@ APP_PORT=3006
 ### Services won't start
 ```bash
 # Docker Compose: Check logs
-docker compose -f docker-compose.all-services.template.yml logs
+docker compose -f docker-compose.yml logs
 
 # Kubernetes: Check pod status
 kubectl describe pod <pod-name>
@@ -561,7 +561,7 @@ kill -9 <PID>
 ```bash
 # Ensure database is running
 # For Docker Compose:
-docker compose -f docker-compose.all-services.template.yml ps
+docker compose -f docker-compose.yml ps
 
 # For Kubernetes:
 kubectl get statefulsets
@@ -581,7 +581,7 @@ kubectl get statefulsets
 ```
 FullApplication/
 ├── README.md (this file)
-├── docker-compose.all-services.template.yml
+├── docker-compose.yml
 ├── api-docs/
 │   ├── *.openapi.yaml (6 service specs)
 │   └── *.md (architecture & workflows)

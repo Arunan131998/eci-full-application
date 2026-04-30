@@ -3,8 +3,8 @@ param(
     [string]$Action = 'Deploy',
     [switch]$SkipMinikubeStart,
     [switch]$SkipBuild,
-    [int]$Memory = 4096,
-    [int]$Cpus = 2
+    [int]$Memory = 6144,
+    [int]$Cpus = 4
 )
 
 $ErrorActionPreference = 'Stop'

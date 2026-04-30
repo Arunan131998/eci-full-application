@@ -233,6 +233,12 @@ Useful variants:
 # Seed only one service in Kubernetes
 .\seed-minikube.ps1 -Service catalog-service
 
+# Reset all Kubernetes databases (deletes PVC data)
+.\clean-minikube-db.ps1
+
+# Reset one database only (no prompt)
+.\clean-minikube-db.ps1 -Service catalog -Force
+
 # Show cluster/service status
 .\deploy-minikube.ps1 -Action Status
 

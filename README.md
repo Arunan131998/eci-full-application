@@ -227,6 +227,12 @@ Useful variants:
 # Deploy but skip rebuilding Docker images
 .\deploy-minikube.ps1 -SkipBuild
 
+# Seed all Kubernetes databases after deployment
+.\seed-minikube.ps1
+
+# Seed only one service in Kubernetes
+.\seed-minikube.ps1 -Service catalog-service
+
 # Show cluster/service status
 .\deploy-minikube.ps1 -Action Status
 

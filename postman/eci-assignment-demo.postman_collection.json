@@ -1,0 +1,475 @@
+{
+  "info": {
+    "_postman_id": "b6fcbd8f-7321-4a78-a2e5-c2dc574ea6e4",
+    "name": "ECI Assignment Demo - End to End",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Demo collection for Problem Statement 4 (ECI): health, catalog/inventory, order flow, payment, shipping, notifications, and metrics."
+  },
+  "variable": [
+    { "key": "baseUrlCatalog", "value": "http://localhost:3001" },
+    { "key": "baseUrlInventory", "value": "http://localhost:3002" },
+    { "key": "baseUrlOrder", "value": "http://localhost:3003" },
+    { "key": "baseUrlPayment", "value": "http://localhost:3004" },
+    { "key": "baseUrlShipping", "value": "http://localhost:3005" },
+    { "key": "baseUrlNotification", "value": "http://localhost:3006" },
+    { "key": "customerId", "value": "CUST-0001" },
+    { "key": "sku1", "value": "SKU-0001" },
+    { "key": "sku2", "value": "SKU-0002" },
+    { "key": "orderId", "value": "" },
+    { "key": "paymentId", "value": "" },
+    { "key": "shipmentId", "value": "" },
+    { "key": "idempotencyOrder", "value": "demo-order-001" },
+    { "key": "idempotencyPay", "value": "demo-pay-001" },
+    { "key": "idempotencyShip", "value": "demo-ship-001" },
+    { "key": "idempotencyRefund", "value": "demo-refund-001" }
+  ],
+  "item": [
+    {
+      "name": "01 - Health - Catalog",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Health payload has ok status', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.status).to.eql('ok');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlCatalog}}/health",
+          "host": ["{{baseUrlCatalog}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "02 - Health - Inventory",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlInventory}}/health",
+          "host": ["{{baseUrlInventory}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "03 - Health - Order",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlOrder}}/health",
+          "host": ["{{baseUrlOrder}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "04 - Health - Payment",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlPayment}}/health",
+          "host": ["{{baseUrlPayment}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "05 - Health - Shipping",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlShipping}}/health",
+          "host": ["{{baseUrlShipping}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "06 - Health - Notification",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlNotification}}/health",
+          "host": ["{{baseUrlNotification}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "07 - Catalog - List Products",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Pagination shape exists', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.have.property('page');",
+              "  pm.expect(json).to.have.property('limit');",
+              "  pm.expect(json).to.have.property('total');",
+              "  pm.expect(json.items).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlCatalog}}/v1/products?page=1&limit=5",
+          "host": ["{{baseUrlCatalog}}"],
+          "path": ["v1", "products"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "5" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "08 - Inventory - List by Warehouse",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlInventory}}/v1/inventory?warehouse=WH1&page=1&limit=5",
+          "host": ["{{baseUrlInventory}}"],
+          "path": ["v1", "inventory"],
+          "query": [
+            { "key": "warehouse", "value": "WH1" },
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "5" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "09 - Order - Create (Reserve-Pay-Ship)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('idempotencyOrder', `demo-order-${Date.now()}`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201 or 200', function () { pm.expect([200, 201]).to.include(pm.response.code); });",
+              "pm.test('Order response has order_id', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.have.property('order_id');",
+              "  pm.collectionVariables.set('orderId', json.order_id);",
+              "  if (json.payment_id) pm.collectionVariables.set('paymentId', json.payment_id);",
+              "  if (json.shipment_id) pm.collectionVariables.set('shipmentId', json.shipment_id);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Idempotency-Key", "value": "{{idempotencyOrder}}" },
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer_id\": \"{{customerId}}\",\n  \"shipping_charge\": 40,\n  \"payment_method\": \"CARD\",\n  \"carrier\": \"ECI_EXPRESS\",\n  \"items\": [\n    { \"sku\": \"{{sku1}}\", \"quantity\": 2 },\n    { \"sku\": \"{{sku2}}\", \"quantity\": 1 }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrlOrder}}/v1/orders",
+          "host": ["{{baseUrlOrder}}"],
+          "path": ["v1", "orders"]
+        }
+      }
+    },
+    {
+      "name": "10 - Order - Idempotency Replay",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Same order id is returned', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.order_id).to.eql(pm.collectionVariables.get('orderId'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Idempotency-Key", "value": "{{idempotencyOrder}}" },
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer_id\": \"{{customerId}}\",\n  \"shipping_charge\": 40,\n  \"payment_method\": \"CARD\",\n  \"carrier\": \"ECI_EXPRESS\",\n  \"items\": [\n    { \"sku\": \"{{sku1}}\", \"quantity\": 2 },\n    { \"sku\": \"{{sku2}}\", \"quantity\": 1 }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrlOrder}}/v1/orders",
+          "host": ["{{baseUrlOrder}}"],
+          "path": ["v1", "orders"]
+        }
+      }
+    },
+    {
+      "name": "11 - Payment - Charge (Direct)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('idempotencyPay', `demo-pay-${Date.now()}`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201, 200 or 402', function () { pm.expect([200, 201, 402]).to.include(pm.response.code); });",
+              "pm.test('Payment has payment_id', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.have.property('payment_id');",
+              "  pm.collectionVariables.set('paymentId', json.payment_id);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Idempotency-Key", "value": "{{idempotencyPay}}" },
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"{{orderId}}\",\n  \"amount\": 999.5,\n  \"method\": \"CARD\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrlPayment}}/v1/payments/charge",
+          "host": ["{{baseUrlPayment}}"],
+          "path": ["v1", "payments", "charge"]
+        }
+      }
+    },
+    {
+      "name": "12 - Shipping - Create",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('idempotencyShip', `demo-ship-${Date.now()}`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201 or 200', function () { pm.expect([200, 201]).to.include(pm.response.code); });",
+              "pm.test('Shipment has shipment_id', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.have.property('shipment_id');",
+              "  pm.collectionVariables.set('shipmentId', json.shipment_id);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Idempotency-Key", "value": "{{idempotencyShip}}" },
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"{{orderId}}\",\n  \"carrier\": \"ECI_EXPRESS\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrlShipping}}/v1/shipments",
+          "host": ["{{baseUrlShipping}}"],
+          "path": ["v1", "shipments"]
+        }
+      }
+    },
+    {
+      "name": "13 - Shipping - Mark SHIPPED",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"SHIPPED\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrlShipping}}/v1/shipments/{{shipmentId}}/status",
+          "host": ["{{baseUrlShipping}}"],
+          "path": ["v1", "shipments", "{{shipmentId}}", "status"]
+        }
+      }
+    },
+    {
+      "name": "14 - Shipping - Mark DELIVERED",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"DELIVERED\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrlShipping}}/v1/shipments/{{shipmentId}}/status",
+          "host": ["{{baseUrlShipping}}"],
+          "path": ["v1", "shipments", "{{shipmentId}}", "status"]
+        }
+      }
+    },
+    {
+      "name": "15 - Payment - Refund",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('idempotencyRefund', `demo-refund-${Date.now()}`);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Idempotency-Key", "value": "{{idempotencyRefund}}" },
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 100.00\n}"
+        },
+        "url": {
+          "raw": "{{baseUrlPayment}}/v1/payments/{{paymentId}}/refund",
+          "host": ["{{baseUrlPayment}}"],
+          "path": ["v1", "payments", "{{paymentId}}", "refund"]
+        }
+      }
+    },
+    {
+      "name": "16 - Notification - Event",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"event_type\": \"ORDER_CONFIRMED\",\n  \"order_id\": \"{{orderId}}\",\n  \"customer_id\": \"{{customerId}}\",\n  \"customer_email\": \"demo@example.com\",\n  \"customer_phone\": \"+911234567890\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrlNotification}}/v1/notifications/events",
+          "host": ["{{baseUrlNotification}}"],
+          "path": ["v1", "notifications", "events"]
+        }
+      }
+    },
+    {
+      "name": "17 - Metrics - Order",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrlOrder}}/metrics",
+          "host": ["{{baseUrlOrder}}"],
+          "path": ["metrics"]
+        }
+      }
+    },
+    {
+      "name": "18 - Metrics - Payment",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrlPayment}}/metrics",
+          "host": ["{{baseUrlPayment}}"],
+          "path": ["metrics"]
+        }
+      }
+    },
+    {
+      "name": "19 - Metrics - Inventory",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrlInventory}}/metrics",
+          "host": ["{{baseUrlInventory}}"],
+          "path": ["metrics"]
+        }
+      }
+    }
+  ]
+}

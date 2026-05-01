@@ -65,10 +65,10 @@ kubectl exec deploy/inventory-db -n $Namespace -- psql -U postgres -d inventory_
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "[OK] Released all reservations and cleared inventory movements" -ForegroundColor Green
-
+}
 
 Write-Step "Demo data reset complete! You can now re-run the Postman collection."
 Write-Host "`nNext steps:" -ForegroundColor Yellow
 Write-Host "1. Open Postman and import postman/eci-assignment-demo.postman_collection.json"
-Write-Host "2. Run the requests in sequence (1-19)"
+Write-Host "2. Run the requests in sequence (1-20)"
 Write-Host "3. Run this script again to reset for another demo run"

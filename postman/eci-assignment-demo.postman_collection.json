@@ -331,6 +331,45 @@
       }
     },
     {
+      "name": "10c - Inventory - Check by SKU Number",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Inventory filtered by SKU matches requested SKU', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.items).to.be.an('array');",
+              "  if (json.items.length > 0) {",
+              "    json.items.forEach(item => {",
+              "      pm.expect(item.sku).to.eql('{{sku1}}');",
+              "    });",
+              "  }",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlInventory}}/v1/inventory?sku={{sku1}}&page=1&limit=10",
+          "host": ["{{baseUrlInventory}}"],
+          "path": ["v1", "inventory"],
+          "query": [
+            { "key": "sku", "value": "{{sku1}}" },
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
       "name": "12 - Payment - Charge (Direct)",
       "event": [
         {

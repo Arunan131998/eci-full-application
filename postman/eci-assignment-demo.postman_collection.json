@@ -628,6 +628,45 @@
       }
     },
     {
+      "name": "15a - Inventory - Verify SHIP Movement",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('At least one SHIP movement exists for order', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.items).to.be.an('array').that.is.not.empty;",
+              "  json.items.forEach(item => {",
+              "    pm.expect(item.type).to.eql('SHIP');",
+              "    pm.expect(String(item.order_id)).to.eql(String(pm.collectionVariables.get('orderId')));",
+              "  });",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlInventory}}/v1/inventory/movements?order_id={{orderId}}&type=SHIP&page=1&limit=10",
+          "host": ["{{baseUrlInventory}}"],
+          "path": ["v1", "inventory", "movements"],
+          "query": [
+            { "key": "order_id", "value": "{{orderId}}" },
+            { "key": "type", "value": "SHIP" },
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
       "name": "16 - Shipping - Mark DELIVERED",
       "request": {
         "method": "PATCH",

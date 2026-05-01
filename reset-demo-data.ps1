@@ -25,7 +25,7 @@ kubectl exec deploy/order-db -n $Namespace -- psql -U postgres -d order_db -c "
   TRUNCATE TABLE orders CASCADE;
   TRUNCATE TABLE order_idempotency CASCADE;
   ALTER SEQUENCE orders_order_id_seq RESTART WITH 1;
-" 2>&1 | Out-Null
+" 2>&1 | Where-Object { $_ -notmatch 'NOTICE' } | Out-Null
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "[OK] Cleared orders, order_items, order_idempotency" -ForegroundColor Green
@@ -36,7 +36,7 @@ Write-Step "Clearing payment service data..."
 kubectl exec deploy/payment-db -n $Namespace -- psql -U postgres -d payment_db -c "
   TRUNCATE TABLE payments CASCADE;
   ALTER SEQUENCE payments_charge_id_seq RESTART WITH 1;
-" 2>&1 | Out-Null
+" 2>&1 | Where-Object { $_ -notmatch 'NOTICE' } | Out-Null
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "[OK] Cleared payments" -ForegroundColor Green
@@ -47,7 +47,7 @@ Write-Step "Clearing shipping service data..."
 kubectl exec deploy/shipping-db -n $Namespace -- psql -U postgres -d shipping_db -c "
   TRUNCATE TABLE shipments CASCADE;
   ALTER SEQUENCE shipments_shipment_id_seq RESTART WITH 1;
-" 2>&1 | Out-Null
+" 2>&1 | Where-Object { $_ -notmatch 'NOTICE' } | Out-Null
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "[OK] Cleared shipments" -ForegroundColor Green
@@ -61,7 +61,7 @@ kubectl exec deploy/inventory-db -n $Namespace -- psql -U postgres -d inventory_
   TRUNCATE TABLE reservations CASCADE;
   ALTER SEQUENCE reservations_reservation_id_seq RESTART WITH 1;
   ALTER SEQUENCE inventory_movements_movement_id_seq RESTART WITH 1;
-" 2>&1 | Out-Null
+" 2>&1 | Where-Object { $_ -notmatch 'NOTICE' } | Out-Null
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "[OK] Released all reservations and cleared inventory movements" -ForegroundColor Green

@@ -406,6 +406,88 @@
       }
     },
     {
+      "name": "10e - Payment - Get Auto-Created Payment",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const pid = pm.collectionVariables.get('paymentId');",
+              "if (!pid) { throw new Error('paymentId not set - run request 09 first'); }"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Payment shows SUCCESS status linked to order', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.payment_id).to.eql(pm.collectionVariables.get('paymentId'));",
+              "  pm.expect(json.status).to.eql('SUCCESS');",
+              "  pm.expect(String(json.order_id)).to.eql(String(pm.collectionVariables.get('orderId')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlPayment}}/v1/payments/{{paymentId}}",
+          "host": ["{{baseUrlPayment}}"],
+          "path": ["v1", "payments", "{{paymentId}}"]
+        }
+      }
+    },
+    {
+      "name": "10f - Shipping - Get Auto-Created Shipment",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const sid = pm.collectionVariables.get('shipmentId');",
+              "if (!sid) { throw new Error('shipmentId not set - run request 09 first'); }"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Shipment shows PENDING status linked to order', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.shipment_id).to.eql(pm.collectionVariables.get('shipmentId'));",
+              "  pm.expect(json.shipment_status).to.eql('PENDING');",
+              "  pm.expect(String(json.order_id)).to.eql(String(pm.collectionVariables.get('orderId')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlShipping}}/v1/shipments/{{shipmentId}}",
+          "host": ["{{baseUrlShipping}}"],
+          "path": ["v1", "shipments", "{{shipmentId}}"]
+        }
+      }
+    },
+    {
       "name": "13 - Payment - Charge (Direct)",
       "event": [
         {

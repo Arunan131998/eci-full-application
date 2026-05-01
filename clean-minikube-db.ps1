@@ -30,8 +30,8 @@ function Invoke-CheckedCommand($scriptBlock, $errorMessage) {
 function Wait-For-Delete($kind, $name, $namespace, $timeoutSeconds) {
     $elapsed = 0
     while ($elapsed -lt $timeoutSeconds) {
-        & kubectl get $kind $name -n $namespace *> $null
-        if ($LASTEXITCODE -ne 0) {
+        $existingResource = kubectl get $kind $name -n $namespace --ignore-not-found -o name 2>$null
+        if ([string]::IsNullOrWhiteSpace($existingResource)) {
             return
         }
 

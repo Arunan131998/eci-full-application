@@ -28,7 +28,7 @@ kubectl exec deploy/order-db -n $Namespace -- psql -U postgres -d order_db -c "
 " 2>&1 | Out-Null
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "✓ Cleared orders, order_items, order_idempotency" -ForegroundColor Green
+    Write-Host "[OK] Cleared orders, order_items, order_idempotency" -ForegroundColor Green
 }
 
 # Reset payment service data
@@ -39,7 +39,7 @@ kubectl exec deploy/payment-db -n $Namespace -- psql -U postgres -d payment_db -
 " 2>&1 | Out-Null
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "✓ Cleared payments" -ForegroundColor Green
+    Write-Host "[OK] Cleared payments" -ForegroundColor Green
 }
 
 # Reset shipping service data
@@ -50,7 +50,7 @@ kubectl exec deploy/shipping-db -n $Namespace -- psql -U postgres -d shipping_db
 " 2>&1 | Out-Null
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "✓ Cleared shipments" -ForegroundColor Green
+    Write-Host "[OK] Cleared shipments" -ForegroundColor Green
 }
 
 # Release all inventory reservations
@@ -64,8 +64,8 @@ kubectl exec deploy/inventory-db -n $Namespace -- psql -U postgres -d inventory_
 " 2>&1 | Out-Null
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "✓ Released all reservations and cleared inventory movements" -ForegroundColor Green
-}
+    Write-Host "[OK] Released all reservations and cleared inventory movements" -ForegroundColor Green
+
 
 Write-Step "Demo data reset complete! You can now re-run the Postman collection."
 Write-Host "`nNext steps:" -ForegroundColor Yellow

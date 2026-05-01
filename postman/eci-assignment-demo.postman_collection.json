@@ -717,6 +717,36 @@
       }
     },
     {
+      "name": "17a - Order - Verify REFUNDED Status",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Order payment status is REFUNDED', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(String(json.order_id)).to.eql(String(pm.collectionVariables.get('orderId')));",
+              "  pm.expect(json.payment_status).to.eql('REFUNDED');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlOrder}}/v1/orders/{{orderId}}",
+          "host": ["{{baseUrlOrder}}"],
+          "path": ["v1", "orders", "{{orderId}}"]
+        }
+      }
+    },
+    {
       "name": "18 - Notification - Event",
       "request": {
         "method": "POST",

@@ -370,7 +370,43 @@
       }
     },
     {
-      "name": "12 - Payment - Charge (Direct)",
+      "name": "10d - Inventory - Check Both SKU1 and SKU2 (list all)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Inventory contains both SKU1 and SKU2', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.items).to.be.an('array');",
+              "  const skus = json.items.map(i => i.sku);",
+              "  pm.expect(skus).to.include('SKU1');",
+              "  pm.expect(skus).to.include('SKU2');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlInventory}}/v1/inventory?page=1&limit=20",
+          "host": ["{{baseUrlInventory}}"],
+          "path": ["v1", "inventory"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "20" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "13 - Payment - Charge (Direct)",
       "event": [
         {
           "listen": "prerequest",
@@ -415,7 +451,7 @@
       }
     },
     {
-      "name": "13 - Shipping - Create",
+      "name": "14 - Shipping - Create",
       "event": [
         {
           "listen": "prerequest",
@@ -460,7 +496,7 @@
       }
     },
     {
-      "name": "13a - Shipping - Get Details",
+      "name": "14a - Shipping - Get Details",
       "request": {
         "method": "PATCH",
         "header": [
@@ -479,7 +515,7 @@
       }
     },
     {
-      "name": "14 - Shipping - Mark SHIPPED",
+      "name": "15 - Shipping - Mark SHIPPED",
       "request": {
         "method": "PATCH",
         "header": [
@@ -498,7 +534,7 @@
       }
     },
     {
-      "name": "15 - Shipping - Mark DELIVERED",
+      "name": "16 - Shipping - Mark DELIVERED",
       "event": [
         {
           "listen": "prerequest",
@@ -529,7 +565,7 @@
       }
     },
     {
-      "name": "16 - Payment - Refund",
+      "name": "17 - Payment - Refund",
       "request": {
         "method": "POST",
         "header": [
@@ -548,7 +584,7 @@
       }
     },
     {
-      "name": "17 - Notification - Event",
+      "name": "18 - Notification - Event",
       "request": {
         "method": "GET",
         "url": {
@@ -559,7 +595,7 @@
       }
     },
     {
-      "name": "18 - Metrics - Order",
+      "name": "19 - Metrics - Order",
       "request": {
         "method": "GET",
         "url": {
@@ -570,7 +606,7 @@
       }
     },
     {
-      "name": "19 - Metrics - Payment",
+      "name": "20 - Metrics - Payment",
       "request": {
         "method": "GET",
         "url": {
@@ -581,7 +617,7 @@
       }
     },
     {
-      "name": "20 - Metrics - Inventory",
+      "name": "21 - Metrics - Inventory",
       "request": {
         "method": "GET",
         "url": {
@@ -592,7 +628,7 @@
       }
     },
     {
-      "name": "21 - Shipment - Get Status (after delivery)",
+      "name": "22 - Shipment - Get Status (after delivery)",
       "event": [
         {
           "listen": "test",
@@ -622,7 +658,7 @@
       }
     },
     {
-      "name": "22 - Order - Cancel (with refund + release)",
+      "name": "23 - Order - Cancel (with refund + release)",
       "event": [
         {
           "listen": "test",

@@ -82,5 +82,5 @@ if ($LASTEXITCODE -eq 0) {
 Write-Step "Demo data reset complete! You can now re-run the Postman collection."
 Write-Host "`nNext steps:" -ForegroundColor Yellow
 Write-Host "1. Open Postman and import postman/eci-assignment-demo.postman_collection.json"
-Write-Host "2. Run the requests in sequence (1-20)"
+Write-Host "2. Run the requests in sequence (1-23)"
 Write-Host "3. Run this script again to reset for another demo run"

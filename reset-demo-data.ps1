@@ -20,12 +20,15 @@ Write-Step "Resetting demo data for order, payment, and shipping services"
 
 # Reset order service data
 Write-Step "Clearing order service data..."
+$prevErrorAction = $ErrorActionPreference
+$ErrorActionPreference = 'SilentlyContinue'
 kubectl exec deploy/order-db -n $Namespace -- psql -U postgres -d order_db -c "
   TRUNCATE TABLE order_items CASCADE;
   TRUNCATE TABLE orders CASCADE;
   TRUNCATE TABLE order_idempotency CASCADE;
   ALTER SEQUENCE orders_order_id_seq RESTART WITH 1;
 " 2>&1 | Where-Object { $_ -notmatch 'NOTICE' } | Out-Null
+$ErrorActionPreference = $prevErrorAction
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "[OK] Cleared orders, order_items, order_idempotency" -ForegroundColor Green
@@ -33,10 +36,13 @@ if ($LASTEXITCODE -eq 0) {
 
 # Reset payment service data
 Write-Step "Clearing payment service data..."
+$prevErrorAction = $ErrorActionPreference
+$ErrorActionPreference = 'SilentlyContinue'
 kubectl exec deploy/payment-db -n $Namespace -- psql -U postgres -d payment_db -c "
   TRUNCATE TABLE payments CASCADE;
   ALTER SEQUENCE payments_charge_id_seq RESTART WITH 1;
 " 2>&1 | Where-Object { $_ -notmatch 'NOTICE' } | Out-Null
+$ErrorActionPreference = $prevErrorAction
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "[OK] Cleared payments" -ForegroundColor Green
@@ -44,10 +50,13 @@ if ($LASTEXITCODE -eq 0) {
 
 # Reset shipping service data
 Write-Step "Clearing shipping service data..."
+$prevErrorAction = $ErrorActionPreference
+$ErrorActionPreference = 'SilentlyContinue'
 kubectl exec deploy/shipping-db -n $Namespace -- psql -U postgres -d shipping_db -c "
   TRUNCATE TABLE shipments CASCADE;
   ALTER SEQUENCE shipments_shipment_id_seq RESTART WITH 1;
 " 2>&1 | Where-Object { $_ -notmatch 'NOTICE' } | Out-Null
+$ErrorActionPreference = $prevErrorAction
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "[OK] Cleared shipments" -ForegroundColor Green
@@ -55,6 +64,8 @@ if ($LASTEXITCODE -eq 0) {
 
 # Release all inventory reservations
 Write-Step "Releasing all inventory reservations..."
+$prevErrorAction = $ErrorActionPreference
+$ErrorActionPreference = 'SilentlyContinue'
 kubectl exec deploy/inventory-db -n $Namespace -- psql -U postgres -d inventory_db -c "
   UPDATE inventory SET reserved = 0 WHERE reserved > 0;
   TRUNCATE TABLE inventory_movements CASCADE;
@@ -62,6 +73,7 @@ kubectl exec deploy/inventory-db -n $Namespace -- psql -U postgres -d inventory_
   ALTER SEQUENCE reservations_reservation_id_seq RESTART WITH 1;
   ALTER SEQUENCE inventory_movements_movement_id_seq RESTART WITH 1;
 " 2>&1 | Where-Object { $_ -notmatch 'NOTICE' } | Out-Null
+$ErrorActionPreference = $prevErrorAction
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "[OK] Released all reservations and cleared inventory movements" -ForegroundColor Green

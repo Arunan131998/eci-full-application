@@ -470,6 +470,37 @@
           "path": ["metrics"]
         }
       }
+    },
+    {
+      "name": "20 - Order - Cancel (with refund + release)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Order status is CANCELLED', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.order_status).to.eql('CANCELLED');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Idempotency-Key", "value": "demo-cancel-{{$timestamp}}" },
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlOrder}}/v1/orders/{{orderId}}/cancel",
+          "host": ["{{baseUrlOrder}}"],
+          "path": ["v1", "orders", "{{orderId}}", "cancel"]
+        }
+      }
     }
   ]
 }

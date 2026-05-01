@@ -783,6 +783,41 @@
       }
     },
     {
+      "name": "17c - Notification - Verify Payment Event Logged",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Notification log contains payment event for order', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.items).to.be.an('array').that.is.not.empty;",
+              "  const hasPaymentEvent = json.items.some(item => String(item.order_id) === String(pm.collectionVariables.get('orderId')) && ['PAYMENT_COMPLETED', 'PAYMENT_FAILED', 'PAYMENT_REFUNDED'].includes(item.event_type));",
+              "  pm.expect(hasPaymentEvent).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlNotification}}/v1/notifications?page=1&limit=50",
+          "host": ["{{baseUrlNotification}}"],
+          "path": ["v1", "notifications"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "50" }
+          ]
+        }
+      }
+    },
+    {
       "name": "18 - Notification - Event",
       "request": {
         "method": "POST",

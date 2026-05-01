@@ -261,7 +261,77 @@
       }
     },
     {
-      "name": "11 - Payment - Charge (Direct)",
+      "name": "10a - Order - Get Details (after creation)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Order shows CONFIRMED status with payment and shipment', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.order_id).to.eql(pm.collectionVariables.get('orderId'));",
+              "  pm.expect(json.order_status).to.eql('CONFIRMED');",
+              "  pm.expect(json.payment_status).to.eql('SUCCESS');",
+              "  pm.expect(json).to.have.property('shipment_id');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlOrder}}/v1/orders/{{orderId}}",
+          "host": ["{{baseUrlOrder}}"],
+          "path": ["v1", "orders", "{{orderId}}"]
+        }
+      }
+    },
+    {
+      "name": "10b - Inventory - Check Reserved Stock",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Stock shows reserved amounts for ordered SKUs', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.items).to.be.an('array');",
+              "  const sku1Item = json.items.find(i => i.sku === 'SKU1');",
+              "  if (sku1Item) {",
+              "    pm.expect(sku1Item.reserved).to.be.greaterThan(0);",
+              "  }",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlInventory}}/v1/inventory?warehouse=WH1&page=1&limit=5",
+          "host": ["{{baseUrlInventory}}"],
+          "path": ["v1", "inventory"],
+          "query": [
+            { "key": "warehouse", "value": "WH1" },
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "5" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "12 - Payment - Charge (Direct)",
       "event": [
         {
           "listen": "prerequest",
@@ -306,7 +376,7 @@
       }
     },
     {
-      "name": "12 - Shipping - Create",
+      "name": "13 - Shipping - Create",
       "event": [
         {
           "listen": "prerequest",
@@ -351,7 +421,7 @@
       }
     },
     {
-      "name": "13 - Shipping - Mark SHIPPED",
+      "name": "13a - Shipping - Get Details",
       "request": {
         "method": "PATCH",
         "header": [
@@ -370,7 +440,7 @@
       }
     },
     {
-      "name": "14 - Shipping - Mark DELIVERED",
+      "name": "14 - Shipping - Mark SHIPPED",
       "request": {
         "method": "PATCH",
         "header": [
@@ -389,7 +459,7 @@
       }
     },
     {
-      "name": "15 - Payment - Refund",
+      "name": "15 - Shipping - Mark DELIVERED",
       "event": [
         {
           "listen": "prerequest",
@@ -420,7 +490,7 @@
       }
     },
     {
-      "name": "16 - Notification - Event",
+      "name": "16 - Payment - Refund",
       "request": {
         "method": "POST",
         "header": [
@@ -439,7 +509,7 @@
       }
     },
     {
-      "name": "17 - Metrics - Order",
+      "name": "17 - Notification - Event",
       "request": {
         "method": "GET",
         "url": {
@@ -450,7 +520,7 @@
       }
     },
     {
-      "name": "18 - Metrics - Payment",
+      "name": "18 - Metrics - Order",
       "request": {
         "method": "GET",
         "url": {
@@ -461,7 +531,7 @@
       }
     },
     {
-      "name": "19 - Metrics - Inventory",
+      "name": "19 - Metrics - Payment",
       "request": {
         "method": "GET",
         "url": {
@@ -472,7 +542,48 @@
       }
     },
     {
-      "name": "20 - Order - Cancel (with refund + release)",
+      "name": "20 - Metrics - Inventory",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrlInventory}}/metrics",
+          "host": ["{{baseUrlInventory}}"],
+          "path": ["metrics"]
+        }
+      }
+    },
+    {
+      "name": "21 - Shipment - Get Status (after delivery)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Shipment shows DELIVERED status', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.shipment_id).to.eql(pm.collectionVariables.get('shipmentId'));",
+              "  pm.expect(json.shipment_status).to.eql('DELIVERED');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-correlation-id", "value": "{{$guid}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrlShipping}}/v1/shipments/{{shipmentId}}",
+          "host": ["{{baseUrlShipping}}"],
+          "path": ["v1", "shipments", "{{shipmentId}}"]
+        }
+      }
+    },
+    {
+      "name": "22 - Order - Cancel (with refund + release)",
       "event": [
         {
           "listen": "test",

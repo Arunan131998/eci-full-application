@@ -67,7 +67,7 @@ Choose one of the three deployment options below.
 **Requirements:**
 - Docker and Docker Compose installed
 - ~2 GB free disk space
-- Ports 3001-3006 and 5431-5436 available
+- Ports 3001-3006, 5431-5436, 5050 (pgAdmin) and 8080 (Adminer) available
 
 **Health Checks & Startup Sequencing:**
 - All PostgreSQL databases have health checks that verify they're ready (`pg_isready`)
@@ -126,6 +126,13 @@ Choose one of the three deployment options below.
    - Shipping API: http://localhost:3005/docs
    - Notification API: http://localhost:3006/docs
    - Metrics: http://localhost:3001/metrics (catalog example)
+
+5. **Database UI** (inspect data visually):
+   - **Adminer** (lightweight): http://localhost:8080
+     - System: `PostgreSQL` | Server: `order-db` (or any `*-db`) | User: `postgres` | Password: `postgres`
+   - **pgAdmin** (full-featured, all 6 DBs pre-loaded): http://localhost:5050
+     - Email: `admin@eci.local` | Password: `admin`
+     - All 6 service databases are pre-registered under **ECI Microservices** in the server tree
 
 ## Manual Seeding
 
@@ -404,6 +411,23 @@ for port in 3001 3002 3003 3004 3005 3006; do
   echo "Port $port: $(curl -s http://localhost:$port/health)"
 done
 ```
+
+### Database UI Tools
+
+| Tool | URL | Credentials | Use Case |
+|------|-----|-------------|----------|
+| **Adminer** | http://localhost:8080 | System: `PostgreSQL`, Server: `<service>-db`, User: `postgres`, Pass: `postgres` | Quick lightweight viewer — one DB at a time |
+| **pgAdmin** | http://localhost:5050 | Email: `admin@eci.local`, Pass: `admin` | Full-featured — all 6 DBs pre-registered |
+
+**Adminer Quick Access** (clicking these pre-fills the login form):
+- [catalog-db](http://localhost:8080/?pgsql=catalog-db&username=postgres&db=catalog_db)
+- [inventory-db](http://localhost:8080/?pgsql=inventory-db&username=postgres&db=inventory_db)
+- [order-db](http://localhost:8080/?pgsql=order-db&username=postgres&db=order_db)
+- [payment-db](http://localhost:8080/?pgsql=payment-db&username=postgres&db=payment_db)
+- [shipping-db](http://localhost:8080/?pgsql=shipping-db&username=postgres&db=shipping_db)
+- [notification-db](http://localhost:8080/?pgsql=notification-db&username=postgres&db=notification_db)
+
+> **Note:** Adminer and pgAdmin containers are defined in `docker-compose.yml` and start alongside the other services. The `pgadmin-servers.json` file at the repo root auto-registers all 6 databases in pgAdmin on first launch.
 
 ### End-to-End Order Workflow
 

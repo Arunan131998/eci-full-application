@@ -1,0 +1,70 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "catalog-db",
+      "Group": "ECI Microservices",
+      "Host": "catalog-db",
+      "Port": 5432,
+      "MaintenanceDB": "catalog_db",
+      "Username": "postgres",
+      "Password": "postgres",
+      "SSLMode": "prefer",
+      "SavePassword": true
+    },
+    "2": {
+      "Name": "inventory-db",
+      "Group": "ECI Microservices",
+      "Host": "inventory-db",
+      "Port": 5432,
+      "MaintenanceDB": "inventory_db",
+      "Username": "postgres",
+      "Password": "postgres",
+      "SSLMode": "prefer",
+      "SavePassword": true
+    },
+    "3": {
+      "Name": "order-db",
+      "Group": "ECI Microservices",
+      "Host": "order-db",
+      "Port": 5432,
+      "MaintenanceDB": "order_db",
+      "Username": "postgres",
+      "Password": "postgres",
+      "SSLMode": "prefer",
+      "SavePassword": true
+    },
+    "4": {
+      "Name": "payment-db",
+      "Group": "ECI Microservices",
+      "Host": "payment-db",
+      "Port": 5432,
+      "MaintenanceDB": "payment_db",
+      "Username": "postgres",
+      "Password": "postgres",
+      "SSLMode": "prefer",
+      "SavePassword": true
+    },
+    "5": {
+      "Name": "shipping-db",
+      "Group": "ECI Microservices",
+      "Host": "shipping-db",
+      "Port": 5432,
+      "MaintenanceDB": "shipping_db",
+      "Username": "postgres",
+      "Password": "postgres",
+      "SSLMode": "prefer",
+      "SavePassword": true
+    },
+    "6": {
+      "Name": "notification-db",
+      "Group": "ECI Microservices",
+      "Host": "notification-db",
+      "Port": 5432,
+      "MaintenanceDB": "notification_db",
+      "Username": "postgres",
+      "Password": "postgres",
+      "SSLMode": "prefer",
+      "SavePassword": true
+    }
+  }
+}

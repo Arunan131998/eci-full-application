@@ -11,6 +11,7 @@ volumes:
   payment_db_data:
   shipping_db_data:
   notification_db_data:
+  pgadmin_data:
 
 services:
   catalog-db:
@@ -241,4 +242,48 @@ services:
       - "3006:3006"
     networks:
       - eci-net
+
+  # ─── Database UI Tools ────────────────────────────────────────────────────
+  # pgAdmin: Full-featured GUI - manages all 6 databases at once
+  # Access: http://localhost:5050  |  Login: admin@eci.local / admin
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@eci.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin-servers.json:/pgadmin4/servers.json
+    ports:
+      - "5050:80"
+    networks:
+      - eci-net
+    depends_on:
+      - catalog-db
+      - inventory-db
+      - order-db
+      - payment-db
+      - shipping-db
+      - notification-db
+
+  # Adminer: Lightweight single-page DB viewer (no config needed)
+  # Access: http://localhost:8080
+  # System: PostgreSQL | Server: <db-container> | User: postgres | Pass: postgres
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - eci-net
+    depends_on:
+      - catalog-db
+      - inventory-db
+      - order-db
+      - payment-db
+      - shipping-db
+      - notification-db
 

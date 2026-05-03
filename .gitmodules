@@ -1,9 +1,9 @@
 [submodule "catalog-service"]
 	path = catalog-service
-	url = https://github.com/Arunan131998/eci-catalog-service.git
+	url = https://github.com/2024tm93687-star/scalable-ecommerce-catalog-service
 [submodule "inventory-service"]
 	path = inventory-service
-	url = https://github.com/Arunan131998/eci-inventory-service.git
+	url = https://github.com/2024tm93687-star/scalable-ecommerce-inventory-service
 [submodule "order-service"]
 	path = order-service
 	url = https://github.com/Arunan131998/eci-order-service.git
